@@ -2,124 +2,149 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <map>
+#include <memory>
 
-// Class yang menyimpan data dari kalkulasi
+// Kelas yang menyimpan data dari kalkulasi
 class Calculation 
 {
+private:
+  double a, b, result; // Angka pertama, kedua, hasil kalkulasi
+  char operation;      // Operator kalkulasi
+
 public:
-  double a, b, result;
-  char operation;
+  // Constructor untuk inisialisasi objek Calculation
+  Calculation(double a, char operation, double b, double result) 
+    : a(a), operation(operation), b(b), result(result) {}
 
-  // Constructor untuk inisialisasi object Calculation
-  Calculation(double a, char operation, double b, double result) : a(a), operation(operation), b(b), result(result) {}
-
-  // Mengubah objek Calculation menjadi string agar dapat dibaca
+  // Fungsi untuk mengubah objek Calculation menjadi string agar dapat dibaca
   std::string toString() 
   {
     return std::to_string(a) + " " + operation + " " + std::to_string(b) + " = " + std::to_string(result);
   }
+
+  // Getter untuk atribut a, b, result, dan operation
+  double getA() const { return a; }
+  double getB() const { return b; }
+  double getResult() const { return result; }
+  char getOperation() const { return operation; }
+
+  // Setter untuk atribut a, b, result, dan operation
+  void setA(double value) { a = value; }
+  void setB(double value) { b = value; }
+  void setResult(double value) { result = value; }
+  void setOperation(char value) { operation = value; }
 };
 
-// Class yang mengimplementasikan fungsi kalkulator
-class Calculator 
+// Kelas abstrak untuk operasi kalkulasi
+class Operation
 {
-  // Vector yang menyimpan data dari kalkulasi sebagai history, untuk fungsi CRUD
-  std::vector<Calculation> history;
-
 public:
-  // Fungsi penjumlahan
-  double add(double a, double b) 
-  {
-    double result = a + b;
+  virtual double execute(double a, double b) = 0; // Fungsi virtual murni untuk eksekusi operasi
+  virtual ~Operation() {} // Destructor virtual
+};
 
-    // menyimpan data kalkulasi ke dalam vector history
-    history.push_back(Calculation(a, '+', b, result));
+// Kelas turunan untuk operasi penjumlahan
+class AddOperation : public Operation
+{
+public:
+  double execute(double a, double b) override { return a + b; }
+};
 
-    return result;
-  }
+// Kelas turunan untuk operasi pengurangan
+class SubtractOperation : public Operation
+{
+public:
+  double execute(double a, double b) override { return a - b; }
+};
 
-  // Fungsi pengurangan
-  double subtract(double a, double b) 
-  {
-    double result = a - b;
-    history.push_back(Calculation(a, '-', b, result));
-    return result;
-  }
+// Kelas turunan untuk operasi perkalian
+class MultiplyOperation : public Operation
+{
+public:
+  double execute(double a, double b) override { return a * b; }
+};
 
-  // Fungsi perkalian
-  double multiply(double a, double b) 
-  {
-    double result = a * b;
-    history.push_back(Calculation(a, '*', b, result));
-    return result;
-  }
-
-  // Fungsi pembagian
-  double divide(double a, double b) 
-  {
-    // memastikan agar pembagian tidak membagi dengan 0
+// Kelas turunan untuk operasi pembagian
+class DivideOperation : public Operation
+{
+public:
+  double execute(double a, double b) override 
+  { 
     if (b != 0) 
-    {
-      double result = a / b;
-      history.push_back(Calculation(a, '/', b, result));
-      return result;
-    } 
+      return a / b; 
     else 
     {
       std::cout << "Error: Division by zero!" << std::endl;
       return 0;
     }
   }
+};
 
-  // Fungsi pangkat
-  double power(double a, double b)
+// Kelas turunan untuk operasi pangkat
+//? Cara yang lebih singkat dari for loop?
+// Gunakan pow() dari cmath
+class PowerOperation : public Operation
+{
+public:
+  double execute(double a, double b) override
   {
-    double result = 1;
-    // menghitung a pangkat b dengan cara mengalikan a dengan a sebanyak b-1 kali (i < b)
-    for (int i = 0; i < b; i++) result *= a;
-    history.push_back(Calculation(a, '^', b, result));
-    return result;
+    return pow(a, b);
+  }
+};
+
+// Kelas turunan untuk operasi modulus
+//? Modulus hanya bisa menggunakan int dan tidak bisa menggunakan double?
+/*
+  1. Menggunakan std::fmod()
+  2. Menggunakan static_cast<int>()
+*/
+class ModulusOperation : public Operation
+{
+public:
+  double execute(double a, double b) override 
+  { 
+    return std::fmod(a, b); 
+  }
+};
+
+// Kelas Calculator untuk menjalankan berbagai operasi kalkulasi
+class Calculator 
+{
+private:
+  std::vector<Calculation> history; // Vector untuk menyimpan history kalkulasi
+  std::map<char, std::unique_ptr<Operation>> operations; // Map untuk menyimpan operasi kalkulasi
+
+public:
+  // Constructor untuk inisialisasi map operasi
+  Calculator() 
+  {
+    operations['+'] = std::make_unique<AddOperation>();
+    operations['-'] = std::make_unique<SubtractOperation>();
+    operations['*'] = std::make_unique<MultiplyOperation>();
+    operations['/'] = std::make_unique<DivideOperation>();
+    operations['^'] = std::make_unique<PowerOperation>();
+    operations['%'] = std::make_unique<ModulusOperation>();
   }
 
-  // Fungsi modulus
-  //? Modulus hanya bisa menggunakan int dan tidak bisa menggunakan double?
-  /*
-    1. Menggunakan std::fmod()
-    2. Menggunakan static_cast<int>()
-  */
-  double modulus(double a, double b)
-  {
-    int result = std::fmod(a, b); // Fungsi cmath untuk modulus double
-    history.push_back(Calculation(a, '%', b, result));
-    return result;
-  }
-
-  // Fungsi untuk menghapus semua history
-  void clearHistory() 
-  {
-    history.clear(); // Fungsi vector untuk mengosongkan isinya
-    std::cout << "All calculation history cleared." << std::endl;
-  }
-
-  // Fungsi untuk menjalankan operasi berdasarkan operator
+  // Fungsi untuk mengeksekusi operasi kalkulasi
   double executeOperation(double a, char operation, double b) 
   {
-    double result = 0;
-    switch (operation) 
+    if (operations.find(operation) != operations.end()) 
     {
-      case '+': result = add(a, b); break;
-      case '-': result = subtract(a, b); break;
-      case '*': result = multiply(a, b); break;
-      case '/': result = divide(a, b); break;
-      case '^': result = power(a, b); break;
-      case '%': result = modulus(a, b); break;
-      default: std::cout << "Unknown operation!" << std::endl; return 0;
+      double result = operations[operation]->execute(a, b);
+      history.push_back(Calculation(a, operation, b, result));
+      std::cout << "Result: " << result << std::endl;
+      return result;
+    } 
+    else 
+    {
+      std::cout << "Unknown operation!" << std::endl;
+      return 0;
     }
-    std::cout << "Result: " << result << std::endl;
-    return result;
   }
 
-  // Fungsi untuk menampilkan history
+  // Fungsi untuk menampilkan history kalkulasi
   void showHistory() 
   {
     if (history.empty()) 
@@ -142,52 +167,15 @@ public:
       history.erase(history.begin() + index - 1);
       std::cout << "Calculation history deleted." << std::endl;
     } 
-    else 
-    {
-      std::cout << "Invalid index." << std::endl;
-    }
+    else std::cout << "Invalid index." << std::endl;
   }
 
-  // Fungsi untuk memperbaharui history berdasarkan index
+  // Fungsi untuk memperbarui history berdasarkan index
   void updateHistory(int index, double a, char operation, double b) 
   {
     if (index >= 1 && index <= history.size()) 
     {
-      double result;
-      switch (operation) 
-      {
-        case '+':
-          result = a + b;
-          break;
-        case '-':
-          result = a - b;
-          break;
-        case '*':
-          result = a * b;
-          break;
-        case '/':
-          if (b != 0) 
-          {
-            result = a / b;
-          }
-
-          else 
-          {
-            std::cout << "Error: Division by zero!" << std::endl;
-            return;
-          }
-          break;
-        case '^':
-          result = 1;
-          for (int i = 0; i < b; i++) result *= a;
-          break;
-        case '%':
-          result = std::fmod(a, b); 
-          break;
-        default:
-          std::cout << "Unknown operation!" << std::endl;
-          return;
-      }
+      double result = operations[operation]->execute(a, b);
       history[index - 1] = Calculation(a, operation, b, result);
       std::cout << "Calculation history updated." << std::endl;
     } 
@@ -195,6 +183,13 @@ public:
     {
       std::cout << "Invalid index." << std::endl;
     }
+  }
+
+  // Fungsi untuk menghapus semua history
+  void clearHistory() 
+  {
+    history.clear();
+    std::cout << "All calculation history cleared." << std::endl;
   }
 };
 
@@ -206,11 +201,12 @@ void showMenu()
   std::cout << "2. Show History\n";
   std::cout << "3. Delete History\n";
   std::cout << "4. Update History\n";
-  std::cout << "5. Quit\n";
+  std::cout << "5. Clear History\n";
+  std::cout << "6. Quit\n";
   std::cout << "Choose: ";
 }
 
-// Fungsi untuk menjalankan operasi
+// Fungsi untuk menjalankan operasi kalkulasi
 void calculate(Calculator& calculator) 
 {
   double a, b;
@@ -220,50 +216,51 @@ void calculate(Calculator& calculator)
   calculator.executeOperation(a, operation, b);
 }
 
+// Fungsi utama
 int main() 
 {
-  Calculator calculator; // Deklarasi object calculator
+  Calculator calculator; // Membuat objek calculator
   int choice, index;
   double a, b;
   char operation;
 
   do 
   {
-    showMenu();
-    std::cin >> choice;
+    showMenu(); // Menampilkan menu
+    std::cin >> choice; // Memasukkan pilihan
 
     switch (choice) 
     {
       case 1:
-        calculate(calculator);
+        calculate(calculator); // Menjalankan kalkulasi
         break;
       case 2:
-        calculator.showHistory();
+        calculator.showHistory(); // Menampilkan history kalkulasi
         break;
       case 3:
         calculator.showHistory();
         std::cout << "Enter the index of the history to delete: ";
         std::cin >> index;
-        calculator.deleteHistory(index);
+        calculator.deleteHistory(index); // Menghapus history berdasarkan index
         break;
       case 4:
         calculator.showHistory();
         std::cout << "Enter the index of the history to update: ";
         std::cin >> index;
-
         std::cout << "Enter the new operation (format: a + b): ";
         std::cin >> a >> operation >> b;
-
-        calculator.updateHistory(index, a, operation, b);
+        calculator.updateHistory(index, a, operation, b); // Memperbarui history berdasarkan index
         break;
       case 5:
-        calculator.clearHistory();
-        std::cout << "Exiting program." << std::endl;
+        calculator.clearHistory(); // Menghapus semua history
+        break;
+      case 6:
+        std::cout << "Exiting program." << std::endl; // Keluar dari program
         break;
       default:
-        std::cout << "Invalid choice!" << std::endl;
+        std::cout << "Invalid choice!" << std::endl; // Pilihan tidak valid
     }
-  } while (choice != 5); // Loop sampai input choice adalah 5
+  } while (choice != 6); // Loop sampai input choice adalah 6 (Keluar)
 
   return 0;
 }
