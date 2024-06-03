@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <cstdlib>
 
 //! 1. Class & Object
 //! 2. Attribute, Property & Method, Behavior
@@ -27,7 +28,7 @@ public:
   std::string toString() 
   {
     if (operation == "sin" || operation == "cos" || operation == "tan") return operation + "(" + std::to_string(a) + "°) = " + std::to_string(result);
-    else if (operation == "ln" || operation == "log10" || operation == "sqrt" || operation == "cbrt") return operation + "(" + std::to_string(a) + ") = " + std::to_string(result);
+    else if (operation == "log" || operation == "sqrt" || operation == "cbrt") return operation + "(" + std::to_string(a) + ") = " + std::to_string(result);
     else if (operation == "!") return std::to_string(a) + "! = " + std::to_string(result);
     else return std::to_string(a) + " " + operation + " " + std::to_string(b) + " = " + std::to_string(result);
   }
@@ -151,7 +152,7 @@ public:
 class LogOperation : public Operation
 {
 public:
-  double execute(double a, double b) override { return std::log(a); }
+  double execute(double a, double b) override { return std::log10(a); }
 };
 
 // Kelas turunan untuk operasi akar kuadrat
@@ -175,8 +176,11 @@ class FactorialOperation : public Operation
 public:
   double execute(double a, double b) override 
   { 
-    for(int i = a - 1; i > 1; i--) a *= i;
-    return a;
+    if (a < 0) return 0;
+    if (a == 0 || a == 1) return 1;
+    double result = 1;
+    for (int i = 1; i <= a; ++i) result *= i;
+    return result;
   }
 };
 
@@ -290,16 +294,13 @@ void calculate(Calculator& calculator)
   double a, b = 0;
   std::string operation;
   std::cout << "Enter operation (format: a + b or a log b): ";
-  std::string input;
-  std::cin.ignore();
-  std::getline(std::cin, input);
-  std::istringstream iss(input);
-  iss >> a >> operation;
-  if (operation != "sin" && operation != "cos" && operation != "tan" && operation != "log" && operation != "sqrt" && operation != "cbrt" && operation != "exp" && operation != "!")
+  std::cin >> a >> operation;
+  if (operation != "sin" && operation != "cos" && operation != "tan" && operation != "log" && operation != "sqrt" && operation != "cbrt" && operation != "!")
   {
-    iss >> b;
+    std::cin >> b;
   }
   calculator.executeOperation(a, operation, b);
+  std::cin.ignore();
 }
 
 // Fungsi untuk memperbaharui history kalkulasi
@@ -314,16 +315,13 @@ void update(Calculator& calculator)
   std::cin.ignore();
   index = std::stoi(input1);
   std::cout << "Enter the new operation (format: a + b or a log b): ";
-  std::string input;
-  std::cin.ignore();
-  std::getline(std::cin, input);
-  std::istringstream iss(input);
-  iss >> a >> operation;
-  if (operation != "sin" && operation != "cos" && operation != "tan" && operation != "ln" && operation != "log10" && operation != "sqrt" && operation != "cbrt" && operation != "exp" && operation != "!")
+  std::cin >> a >> operation;
+  if (operation != "sin" && operation != "cos" && operation != "tan" && operation != "log" && operation != "sqrt" && operation != "cbrt" && operation != "!")
   {
-    iss >> b;
+    std::cin >> b;
   }
   calculator.updateHistory(index, a, operation, b);
+  std::cin.ignore();
 }
 
 // Fungsi untuk menunjukkan operasi yang tersedia
@@ -350,7 +348,6 @@ void showOperations()
 int main() 
 {
   Calculator calculator; // Membuat objek calculator
-  double a, b;
   int choice, index;
   std::string operation, input1, input2;
 
@@ -365,34 +362,42 @@ int main()
     switch (choice) 
     {
       case 1:
-      calculate(calculator); // Menjalankan kalkulasi
-      break;
+        calculate(calculator); // Menjalankan kalkulasi
+        break;
       case 2:
-      showOperations(); // Menampilkan daftar operasi
-      break;
+        showOperations(); // Menampilkan daftar operasi
+        break;
       case 3:
-      calculator.showHistory(); // Menampilkan history kalkulasi
-      break;
+        calculator.showHistory(); // Menampilkan history kalkulasi
+        break;
       case 4:
-      calculator.showHistory();
-      std::cout << "Enter the index of the history to delete: ";
-      std::cin >> input2;
-      std::cin.ignore();
-      index = std::stoi(input2);
-      calculator.deleteHistory(index); // Menghapus history berdasarkan index
-      break;
+        calculator.showHistory();
+        std::cout << "Enter the index of the history to delete: ";
+        std::cin >> input2;
+        std::cin.ignore();
+        calculator.deleteHistory(std::stoi(input2)); // Menghapus history berdasarkan index
+        break;
       case 5:
-      update(calculator); // Memperbarui history berdasarkan index
-      break;
+        update(calculator); // Memperbarui history berdasarkan index
+        break;
       case 6:
-      calculator.clearHistory(); // Menghapus semua history
-      break;
+        calculator.clearHistory(); // Menghapus semua history
+        break;
       case 7:
-      std::cout << "Exiting program." << std::endl; // Keluar dari program
-      break;
+        std::cout << "Exiting program." << std::endl; // Keluar dari program
+        break;
       default:
-      std::cout << "Invalid choice!" << std::endl; // Pilihan tidak valid
+        std::cout << "Invalid choice!" << std::endl; // Pilihan tidak valid
     }
+
+    if (choice != 7)
+    {
+      std::cout << "Press enter to continue...";
+      std::cin.ignore();
+    }
+
+    std::system("cls");
+    std::system("clear");
   } while (choice != 7); // Loop sampai input choice adalah 7 (Keluar)
 
   return 0;
