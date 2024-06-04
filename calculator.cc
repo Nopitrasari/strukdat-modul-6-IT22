@@ -277,14 +277,18 @@ public:
 // Fungsi untuk menampilkan menu
 void showMenu() 
 {
-  std::cout << "\nMenu:\n";
-  std::cout << "1. Calculate\n";
-  std::cout << "2. Show Operations\n"; 
-  std::cout << "3. Show History\n"; 
-  std::cout << "4. Delete History\n";
-  std::cout << "5. Update History\n";
-  std::cout << "6. Clear History\n";
-  std::cout << "7. Quit\n"; 
+  std::cout << "++======================++\n";
+  std::cout << "|| Calculator\t\t||\n";
+  std::cout << "++======================++\n";
+  std::cout << "|| Menu:\t\t||\n";
+  std::cout << "|| 1. Calculate\t\t||\n";
+  std::cout << "|| 2. Show Operations\t||\n"; 
+  std::cout << "|| 3. Show History\t||\n"; 
+  std::cout << "|| 4. Delete History\t||\n";
+  std::cout << "|| 5. Update History\t||\n";
+  std::cout << "|| 6. Clear History\t||\n";
+  std::cout << "|| 7. Quit\t\t||\n"; 
+  std::cout << "++======================++\n";
   std::cout << "Choose: ";
 }
 
@@ -327,21 +331,31 @@ void update(Calculator& calculator)
 // Fungsi untuk menunjukkan operasi yang tersedia
 void showOperations()
 {
-  std::cout << "\nRegular operations (a + b):\n";
-  std::cout << "+\tAddition (a + b)\n";
-  std::cout << "-\tSubtraction (a - b)\n";
-  std::cout << "*\tMultiplication (a * b)\n";
-  std::cout << "/\tDivision (a / b)\n";
-  std::cout << "^\tPower (a ^ b)\n";
-  std::cout << "%\tModulus (a % b)\n";
-  std::cout << "\nSpecial operations (a sin b (equals to sin(a), ignores the value of b)):\n";
-  std::cout << "sin\tSine (sin(a))\n";
-  std::cout << "cos\tCosine (cos(a))\n";
-  std::cout << "tan\tTangent (tan(a))\n";
-  std::cout << "log\tLogarithm base 10 (log10(a))\n";
-  std::cout << "sqrt\tSquare root (sqrt(a))\n";
-  std::cout << "cbrt\tCube root (cbrt(a))\n";
-  std::cout << "!\tFactorial (a!)\n";
+  std::cout << "++======================================++\n";
+  std::cout << "|| Regular operations:\t\t\t||\n";
+  std::cout << "++===++=================================++\n";
+  std::cout << "|| + || Addition (a + b)\t\t||\n";
+  std::cout << "|| - || Subtraction (a - b)\t\t||\n";
+  std::cout << "|| * || Multiplication (a * b)\t\t||\n";
+  std::cout << "|| / || Division (a / b)\t\t||\n";
+  std::cout << "|| ^ || Power (a ^ b)\t\t\t||\n";
+  std::cout << "|| % || Modulus (a % b)\t\t\t||\n";
+  std::cout << "++===++=================================++\n";
+  std::cout << "|| example: a + b\t\t\t||\n";
+  std::cout << "++======================================++\n\n";
+  std::cout << "++======================================++\n";
+  std::cout << "|| Special operations:\t\t\t||\n";
+  std::cout << "++======++==============================++\n";
+  std::cout << "|| sin  || Sine (sin(a))\t\t||\n";
+  std::cout << "|| cos  || Cosine (cos(a))\t\t||\n";
+  std::cout << "|| tan  || Tangent (tan(a))\t\t||\n";
+  std::cout << "|| log  || Logarithm base 10 (log(a))\t||\n";
+  std::cout << "|| sqrt || Square root (sqrt(a))\t||\n";
+  std::cout << "|| cbrt || Cube root (cbrt(a))\t\t||\n";
+  std::cout << "|| !    || Factorial (a!)\t\t||\n";
+  std::cout << "++======++==============================++\n";
+  std::cout << "|| example: a sin b (equals to sin(a))\t||\n";
+  std::cout << "++======================================++\n";
 }
 
 // Fungsi utama
@@ -357,7 +371,9 @@ int main()
     std::cin >> input1; // Memasukkan pilihan
     std::cin.ignore(); // Menghapus spasi yang ada di antara input dan pilihan
     choice = std::stoi(input1);
-    if (choice < 1 || choice > 7) continue; 
+    
+    std::system("cls");
+    std::system("clear");
 
     switch (choice) 
     {
@@ -394,10 +410,9 @@ int main()
     {
       std::cout << "Press enter to continue...";
       std::cin.ignore();
+      std::system("cls");
+      std::system("clear");
     }
-
-    std::system("cls");
-    std::system("clear");
   } while (choice != 7); // Loop sampai input choice adalah 7 (Keluar)
 
   return 0;
