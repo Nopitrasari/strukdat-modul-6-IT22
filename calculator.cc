@@ -7,6 +7,8 @@
 #include <sstream>
 #include <cstdlib>
 
+int historyExists = 1;
+
 //! 1. Class & Object
 //! 2. Attribute, Property & Method, Behavior
 // Kelas yang menyimpan data dari kalkulasi
@@ -21,8 +23,8 @@ private:
 public:
   //! 3. Constructor
   // Constructor untuk inisialisasi objek Calculation
-  Calculation(double a, std::string operation, double b, double result) 
-    : a(a), operation(operation), b(b), result(result) {}
+  Calculation(double a = 0, std::string operation = "", double b = 0, double result = 0) 
+    : a(a), operation(std::move(operation)), b(b), result(result) {}
 
   // Fungsi untuk mengubah objek Calculation menjadi string agar dapat dibaca
   std::string toString() 
@@ -30,6 +32,7 @@ public:
     if (operation == "sin" || operation == "cos" || operation == "tan") return operation + "(" + std::to_string(a) + "°) = " + std::to_string(result);
     else if (operation == "log" || operation == "sqrt" || operation == "cbrt") return operation + "(" + std::to_string(a) + ") = " + std::to_string(result);
     else if (operation == "!") return std::to_string(a) + "! = " + std::to_string(result);
+    else if (operation == "/" && b == 0) return std::to_string(a) + " / " + std::to_string(b) + " = Error (Division by zero!)" ;
     else return std::to_string(a) + " " + operation + " " + std::to_string(b) + " = " + std::to_string(result);
   }
 
@@ -171,15 +174,21 @@ public:
 
 // Kelas turunan untuk operasi faktorial
 //? Cara yang lebih singkat dari for loop?
-class FactorialOperation : public Operation
+/*
+  1. Menggunakan recursive dan menyimpan factorial yang sudah didapatkan sebelumnya pada map
+*/
+class FactorialOperation : public Operation 
 {
+private:
+  std::map<double, double> memoizedFactorials;
+
 public:
-  double execute(double a, double b) override 
-  { 
+  double execute(double a, double b) override {
     if (a < 0) return 0;
     if (a == 0 || a == 1) return 1;
-    double result = 1;
-    for (int i = 1; i <= a; ++i) result *= i;
+    if (memoizedFactorials.count(a) > 0) return memoizedFactorials[a];
+    double result = a * execute(a - 1, 0);
+    memoizedFactorials[a] = result;
     return result;
   }
 };
@@ -229,18 +238,19 @@ public:
   }
 
   // Fungsi untuk menampilkan history kalkulasi
-  void showHistory() 
+  int showHistory() 
   {
     if (history.empty()) 
     {
       std::cout << "No calculation history." << std::endl;
-      return;
+      return 0;
     }
 
     for (int i = 0; i < history.size(); ++i) 
     {
       std::cout << i + 1 << ". " << history[i].toString() << std::endl;
     }
+    return 1;
   }
 
   // Fungsi untuk menghapus history berdasarkan index
@@ -297,10 +307,14 @@ void calculate(Calculator& calculator)
 {
   double a, b = 0;
   std::string operation;
-  std::cout << "Enter operation (format: a + b or a log b): ";
-  std::cin >> a >> operation;
+  std::cout << "Enter operation (format: a + b or a log -> log(a)): \n";
+  std::cout << "Enter the first number: ";
+  std::cin >> a;
+  std::cout << "Enter the operation: ";
+  std::cin >> operation;
   if (operation != "sin" && operation != "cos" && operation != "tan" && operation != "log" && operation != "sqrt" && operation != "cbrt" && operation != "!")
   {
+    std::cout << "Enter the second number: ";
     std::cin >> b;
   }
   calculator.executeOperation(a, operation, b);
@@ -313,15 +327,20 @@ void update(Calculator& calculator)
   double a, b = 0;
   std::string operation, input1;
   int index;
-  calculator.showHistory();
+  historyExists = calculator.showHistory();
+  if (!historyExists) return;
   std::cout << "Enter the index of the history to update: ";
   std::cin >> input1;
   std::cin.ignore();
   index = std::stoi(input1);
-  std::cout << "Enter the new operation (format: a + b or a log b): ";
-  std::cin >> a >> operation;
+  std::cout << "Enter operation (format: a + b or a log -> log(a)): ";
+  std::cout << "Enter the first number: ";
+  std::cin >> a;
+  std::cout << "Enter the operation: ";
+  std::cin >> operation;
   if (operation != "sin" && operation != "cos" && operation != "tan" && operation != "log" && operation != "sqrt" && operation != "cbrt" && operation != "!")
   {
+    std::cout << "Enter the second number: ";
     std::cin >> b;
   }
   calculator.updateHistory(index, a, operation, b);
@@ -354,7 +373,7 @@ void showOperations()
   std::cout << "|| cbrt || Cube root (cbrt(a))\t\t||\n";
   std::cout << "|| !    || Factorial (a!)\t\t||\n";
   std::cout << "++======++==============================++\n";
-  std::cout << "|| example: a sin b (equals to sin(a))\t||\n";
+  std::cout << "|| example: a sin (equals to sin(a))\t||\n";
   std::cout << "++======================================++\n";
 }
 
@@ -387,7 +406,8 @@ int main()
         calculator.showHistory(); // Menampilkan history kalkulasi
         break;
       case 4:
-        calculator.showHistory();
+        historyExists = calculator.showHistory();
+        if (!historyExists) break;
         std::cout << "Enter the index of the history to delete: ";
         std::cin >> input2;
         std::cin.ignore();
