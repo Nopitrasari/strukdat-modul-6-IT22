@@ -7,6 +7,8 @@
 #include <sstream>
 #include <cstdlib>
 
+#define PI 3.14159265358979323846
+
 int historyExists = 1;
 
 //! 1. Class & Object
@@ -119,12 +121,16 @@ public:
 };
 
 // Kelas turunan untuk operasi sin
+//? Cara mengubah menjadi derajat?
+/*
+  1. Mengalikan a dengan PI / 180
+*/
 class SinOperation : public Operation
 {
 public:
   double execute(double a, double b) override 
   { 
-    a = a * 3.14159265 / 180;
+    a = a * PI / 180;
     return std::sin(a); 
   }
 };
@@ -135,7 +141,7 @@ class CosOperation : public Operation
 public:
   double execute(double a, double b) override 
   { 
-    a = a * 3.14159265 / 180;
+    a = a * PI / 180;
     return std::cos(a); 
   }
 };
@@ -146,7 +152,7 @@ class TanOperation : public Operation
 public:
   double execute(double a, double b) override 
   { 
-    a = a * 3.14159265 / 180;
+    a = a * PI / 180;
     return std::tan(a); 
   }
 };
@@ -176,6 +182,7 @@ public:
 //? Cara yang lebih singkat dari for loop?
 /*
   1. Menggunakan recursive dan menyimpan factorial yang sudah didapatkan sebelumnya pada map
+    -> Iterasi semakin cepat seiring dengan berjalannya waktu karena semakin banyak faktorial yang disimpan
 */
 class FactorialOperation : public Operation 
 {
@@ -297,7 +304,8 @@ void showMenu()
   std::cout << "|| 4. Delete History\t||\n";
   std::cout << "|| 5. Update History\t||\n";
   std::cout << "|| 6. Clear History\t||\n";
-  std::cout << "|| 7. Quit\t\t||\n"; 
+  std::cout << "|| 7. Credit\t\t||\n";
+  std::cout << "|| 8. Quit\t\t||\n"; 
   std::cout << "++======================++\n";
   std::cout << "Choose: ";
 }
@@ -354,15 +362,15 @@ void showOperations()
   std::cout << "|| Regular operations:\t\t\t||\n";
   std::cout << "++===++=================================++\n";
   std::cout << "|| + || Addition (a + b)\t\t||\n";
-  std::cout << "++===++=================================++\n";
+  std::cout << "++---++---------------------------------++\n";
   std::cout << "|| - || Subtraction (a - b)\t\t||\n";
-  std::cout << "++===++=================================++\n";
+  std::cout << "++---++---------------------------------++\n";
   std::cout << "|| * || Multiplication (a * b)\t\t||\n";
-  std::cout << "++===++=================================++\n";
+  std::cout << "++---++---------------------------------++\n";
   std::cout << "|| / || Division (a / b)\t\t||\n";
-  std::cout << "++===++=================================++\n";
+  std::cout << "++---++---------------------------------++\n";
   std::cout << "|| ^ || Power (a ^ b)\t\t\t||\n";
-  std::cout << "++===++=================================++\n";
+  std::cout << "++---++---------------------------------++\n";
   std::cout << "|| % || Modulus (a % b)\t\t\t||\n";
   std::cout << "++===++=================================++\n";
   std::cout << "|| example: a + b\t\t\t||\n";
@@ -371,20 +379,36 @@ void showOperations()
   std::cout << "|| Special operations:\t\t\t||\n";
   std::cout << "++======++==============================++\n";
   std::cout << "|| sin  || Sine (sin(a))\t\t||\n";
-  std::cout << "++======++==============================++\n";
+  std::cout << "++------++------------------------------++\n";
   std::cout << "|| cos  || Cosine (cos(a))\t\t||\n";
-  std::cout << "++======++==============================++\n";
+  std::cout << "++------++------------------------------++\n";
   std::cout << "|| tan  || Tangent (tan(a))\t\t||\n";
-  std::cout << "++======++==============================++\n";
+  std::cout << "++------++------------------------------++\n";
   std::cout << "|| log  || Logarithm base 10 (log(a))\t||\n";
-  std::cout << "++======++==============================++\n";
+  std::cout << "++------++------------------------------++\n";
   std::cout << "|| sqrt || Square root (sqrt(a))\t||\n";
-  std::cout << "++======++==============================++\n";
+  std::cout << "++------++------------------------------++\n";
   std::cout << "|| cbrt || Cube root (cbrt(a))\t\t||\n";
-  std::cout << "++======++==============================++\n";
+  std::cout << "++------++------------------------------++\n";
   std::cout << "|| !    || Factorial (a!)\t\t||\n";
   std::cout << "++======++==============================++\n";
   std::cout << "|| example: a sin (equals to sin(a))\t||\n";
+  std::cout << "++======================================++\n";
+}
+
+void showCredit()
+{
+  std::cout << "++======================================++\n";
+  std::cout << "|| Made By Praktikan Strukdat IT22\t||\n";
+  std::cout << "++======================================++\n";
+  std::cout << "|| Aswalia Novitriasari\t\t\t||\n";
+  std::cout << "|| 5027231012\t\t\t\t||\n";
+  std::cout << "++======================================++\n";
+  std::cout << "|| Rafi' Afnaan Fathurrahman\t\t||\n";
+  std::cout << "|| 5027231040\t\t\t\t||\n";
+  std::cout << "++======================================++\n";
+  std::cout << "|| Fadlillah Cantika Sari Hermawan\t||\n";
+  std::cout << "|| 5027231042\t\t\t\t||\n";
   std::cout << "++======================================++\n";
 }
 
@@ -431,20 +455,23 @@ int main()
         calculator.clearHistory(); // Menghapus semua history
         break;
       case 7:
+        showCredit(); // Menampilkan credit
+        break;
+      case 8:
         std::cout << "Exiting program." << std::endl; // Keluar dari program
         break;
       default:
         std::cout << "Invalid choice!" << std::endl; // Pilihan tidak valid
     }
 
-    if (choice != 7)
+    if (choice != 8)
     {
       std::cout << "Press enter to continue...";
       std::cin.ignore();
       std::system("cls");
       std::system("clear");
     }
-  } while (choice != 7); // Loop sampai input choice adalah 7 (Keluar)
+  } while (choice != 8); // Loop sampai input choice adalah 7 (Keluar)
 
   return 0;
 }
