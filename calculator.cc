@@ -129,33 +129,21 @@ public:
 class SinOperation : public Operation
 {
 public:
-  double execute(double a, double b) override 
-  { 
-    a = a * PI / 180;
-    return std::sin(a); 
-  }
+  double execute(double a, double b) override { return std::sin(a * PI / 180); }
 };
 
 // Kelas turunan untuk operasi cos
 class CosOperation : public Operation
 {
 public:
-  double execute(double a, double b) override 
-  { 
-    a = a * PI / 180;
-    return std::cos(a); 
-  }
+  double execute(double a, double b) override { return std::cos(a * PI / 180); }
 };
 
 // Kelas turunan untuk operasi tan
 class TanOperation : public Operation
 {
 public:
-  double execute(double a, double b) override 
-  { 
-    a = a * PI / 180;
-    return std::tan(a); 
-  }
+  double execute(double a, double b) override { return std::tan(a * PI / 180); }
 };
 
 // Kelas turunan untuk operasi logaritma
@@ -235,7 +223,8 @@ public:
     {
       double result = operations[operation]->execute(a, b);
       history.push_back(Calculation(a, operation, b, result));
-      std::cout << BHGRN "Result: " reset << BHMAG << result << reset << std::endl;
+      if (operation != "/" && b != 0) std::cout << BHGRN "Result: " reset << BHMAG << result << reset << std::endl;
+      else if (operation == "/" && b == 0) std::cout << BHGRN "Result: " reset << BHRED "Error (Division by zero!)" << reset << std::endl;
       return result;
     } 
     else 
