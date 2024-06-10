@@ -405,6 +405,7 @@ void clearScreen()
 {
   std::system("cls");
   std::system("clear");
+  std::cout << "\033[2J\033[1;1H";
 }
 
 // Fungsi utama
